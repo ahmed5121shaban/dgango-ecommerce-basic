@@ -2,10 +2,18 @@ from multiprocessing import context, get_context
 from django.db.models import Count
 from django.views.generic import ListView,DetailView
 from .models import Category, Product, ProductsImages, Brand
+from django.shortcuts import render
 # Create your views here.
+
+def post_list(request):
+    object = Product.objects.all()
+    return render(request,'products/test_list.html',{'products':object})
+
+
 
 class ProductsList(ListView):
     model = Product
+    paginate_by = 20
 
 
 class ProcuctDetail(DetailView):
