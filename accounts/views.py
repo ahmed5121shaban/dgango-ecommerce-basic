@@ -53,5 +53,10 @@ def profile(request):
     profile = Profile.objects.get(user=request.user)
     user_adress = UserAdress.objects.filter(user=request.user)
     phone_numbers = UserPhoneNumper.objects.filter(user=request.user)
-
     return render(request, 'registration/profile.html',{'profile':profile,'user_adress':user_adress,'phone_numbers':phone_numbers})
+
+
+from .task import task_celery
+def task_celery(request):
+    task_celery(20)
+

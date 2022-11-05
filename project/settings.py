@@ -10,7 +10,6 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/4.0/ref/settings/
 """
 
-from distutils.log import debug
 from pathlib import Path
 from telnetlib import AUTHENTICATION
 from xmlrpc.client import INTERNAL_ERROR
@@ -41,7 +40,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    
+    'rest_framework',
     'orders',
     'products',
     'settings',
@@ -60,7 +59,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'accouts.user_context_processor.get_profile',
+    #'accounts.user_context_processor.get_profile',
 ]
 
 ROOT_URLCONF = 'project.urls'
@@ -139,8 +138,22 @@ STATICFILES_DIRS = [
 
 MEDIA_URL = 'media/'
 MEDIA_ROOT = BASE_DIR / 'media'
+
+
+
+#REST_FRAMEWORK = {
+# Use Django's standard `django.contrib.auth` permissions,
+# or allow read-only access for unauthenticated users.
+#    'DEFAULT_PERMISSION_CLASSES': [
+#        'rest_framework.permissions.DjangoModelPermissionsOrAnonReadOnly'
+#    ]
+#}
+
+
+
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.0/ref/settings/#default-auto-field
+
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
@@ -162,3 +175,24 @@ EMAIL_PORT = 587
 EMAIL_USE_TLS = True
 EMAIL_HOST_USER = 'ahmed.sh1999@gmail.com'
 EMAIL_HOST_PASSWORD = 'jexxvdwftawpubmx'
+
+
+CACHES = {
+    "default": {
+        "BACKEND": "django_redis.cache.RedisCache",
+        "LOCATION": "redis://127.0.0.1:6379/1",
+        "OPTIONS": {
+            "CLIENT_CLASS": "django_redis.client.DefaultClient",
+        }
+    }
+}
+
+
+#celery
+
+CELERY_BROKER_URL='redis://localhost:6379'
+CELERY_RESULT_BACKEND='redis://localhost:6379'
+
+
+
+

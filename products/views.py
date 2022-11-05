@@ -4,7 +4,9 @@ from django.views.generic import ListView,DetailView
 from .models import Category, Product, ProductsImages, Brand
 from django.shortcuts import render
 # Create your views here.
+from django.views.decorators.cache import cache_page
 
+@cache_page(60)
 def post_list(request):
     object = Product.objects.all()
     return render(request,'products/test_list.html',{'products':object})
@@ -51,3 +53,6 @@ class CategoryList(ListView):
         context = super().get_context_data(**kwargs)
         context['category'] = Category.objects.all().annotate(product_count=Count('product_category'))
         return context
+
+
+
