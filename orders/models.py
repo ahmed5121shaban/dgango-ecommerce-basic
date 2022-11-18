@@ -24,12 +24,20 @@ class Cart(models.Model):
         return self.code
 
 
+    def get_total(self):
+        total = 0
+        for product in self.cart_detail.all():
+            total += product.total
+        return total
+
+
+
 class CartDetail(models.Model):
     cart = models.ForeignKey(Cart, related_name='cart_detail',on_delete=models.CASCADE)
     product = models.ForeignKey(Product, related_name='cart_product',on_delete=models.SET_NULL,null=True,blank=True)
-    quantity = models.IntegerField()
-    price = models.FloatField()
-    total = models.FloatField()
+    quantity = models.IntegerField(default=0)
+    price = models.FloatField(default=0)
+    total = models.FloatField(default=0)
 
 
     def __str__(self):
@@ -72,6 +80,15 @@ class OrderDetail(models.Model):
         return str(self.order)
 
 
+class Coupon(models.Model):
+    code = models.CharField(max_length=50)
+    quantity = models.IntegerField()
+    from_date = models.DateField(default=timezone.now)
+    to_date = models.DateField(default=timezone.now)
+    value = models.FloatField()
+    is_valid = models.BooleanField(default=True)
 
+    def __str__(self):
+        return self.code
 
 

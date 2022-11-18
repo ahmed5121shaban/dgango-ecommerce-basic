@@ -1,7 +1,8 @@
 
 from django.shortcuts import render
 from products.models import Product
-from .models import Cart,CartDetail
+from .models import Cart,CartDetail,Order, OrderDetail
+
 # Create your views here.
 
 
@@ -17,8 +18,20 @@ def add_to_cart(request):
             cart = cart,
             product = product,
         )
-        cart_detail.quantity = quantity
+        cart_detail.quantity = int(quantity)
         cart_detail.price = product.price
         cart_detail.total = int(quantity) * product.price
         cart_detail.save()
 
+def order_list(request):
+    orders = Order.objects.filter(user=request.user)
+    return render(request, "orders/orders.html", {'orders':orders})
+        
+
+def checkout(request):
+    cart = Cart.objects.get(user=request.user, status='inprogress')
+    cart_detail = CartDetail.objects.filter(cart=cart)
+
+    if request.method == "POST":
+        print(request.POST)
+    return render(request, "orders/checkout.html", {'cart':cart,'cart_detail':cart_detail})

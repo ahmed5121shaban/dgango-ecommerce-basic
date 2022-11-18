@@ -1,9 +1,10 @@
 from multiprocessing import context, get_context
 from django.db.models import Count
 from django.views.generic import ListView,DetailView
-from .models import Category, Product, ProductsImages, Brand
+from .models import Category, Product, ProductsImages, Brand,ProductsReview
 from django.shortcuts import render
 # Create your views here.
+from .form import ProductsReviewForm
 from django.views.decorators.cache import cache_page
 
 @cache_page(60)
@@ -26,6 +27,7 @@ class ProcuctDetail(DetailView):
         myproduct = self.get_object()
         context['images'] = ProductsImages.objects.filter(product=myproduct)
         context['related'] = Product.objects.filter(category=myproduct.category)[:10]
+        context['reviews'] = ProductsReview.objects.filter(product=myproduct)
         return context
 
 class BrandList(ListView):
@@ -53,6 +55,24 @@ class CategoryList(ListView):
         context = super().get_context_data(**kwargs)
         context['category'] = Category.objects.all().annotate(product_count=Count('product_category'))
         return context
+
+from django.http import JsonResponse
+from django.template.loader import render_to_string
+
+
+def add_reviews(request,id):
+    product  = Product.objects.get(id=id)
+    if request.method == 'POST':
+        form = ProductsReviewForm(request.POST)
+        if form.is_valid():
+            myform = form.save(commit=False)
+            myform.products = product
+            myform.user = request.user
+            myform.save()
+
+            reviews = ProductsReview.objects.filter(product=product)
+            html = render_to_string('include/review.html',{'review':reviews,request:request})
+            return JsonResponse({'result':html})
 
 
 
