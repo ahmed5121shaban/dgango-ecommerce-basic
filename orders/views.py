@@ -1,8 +1,11 @@
 
 from django.shortcuts import render
 from products.models import Product
-from .models import Cart,CartDetail,Order, OrderDetail
-
+from .models import Cart,CartDetail,Order, OrderDetail,Coupon
+from django.shortcuts import get_object_or_404
+from django.utils.timezone import datetime
+from django.http import JsonResponse
+from django.template.loader import render_to_string
 # Create your views here.
 
 
@@ -31,7 +34,22 @@ def order_list(request):
 def checkout(request):
     cart = Cart.objects.get(user=request.user, status='inprogress')
     cart_detail = CartDetail.objects.filter(cart=cart)
-
+    today_date = datetime.today().date()
+    delivery_cost = 50
     if request.method == "POST":
-        print(request.POST)
-    return render(request, "orders/checkout.html", {'cart':cart,'cart_detail':cart_detail})
+        code = request.POST['coupon_code']
+        coupon_code = get_object_or_404(Coupon,code=code)
+        if coupon_code and coupon_code.quantity > 0:
+            if today_date >= coupon_code.from_date and today_date <= coupon_code.to_date:
+                code_value = cart.get_total() /100 * coupon_code.value
+                total = cart.get_total() - code_value
+                total = total + delivery_cost
+
+                html = render_to_string('include/summery.html',{'sub_total':cart.get_total(),'total':total,'delivery_cost':delivery_cost,'code_value':code_value,request:request})
+                return JsonResponse({'result':html})
+    else:
+        code_value = 0
+        total = round(cart.get_total() + delivery_cost,2)
+        return render(request, "orders/checkout.html", {'cart':cart,'total':total,'sub_total':cart.get_total(),'delivery_cost':delivery_cost,'code_value':code_value,'cart_detail':cart_detail})
+
+
