@@ -111,7 +111,7 @@
                             </div>
                             <div class="details-add-group">
 
-                            <form method='post' action="{% url 'orders:add_to_cart' %}">
+                            <form id='add_to_cart' method='post' action="{% url 'orders:add_to_cart' %}">
                             {% csrf_token %}
                             <input type="number" name="quantity" value=1>
                             <input type='hidden' name="product_id" value="{{object.id}}">
@@ -384,6 +384,24 @@
             })
         })
     })
+
+
+    $(document).on('submit','#add_to_cart',function(event){
+            event.preventDefault();
+            $.ajax({
+                type:$(this).attr('method'),
+                url:$(this).attr('action'),
+                data:$(this).serialize(),
+                datatype:'jeson',
+                success:function(response){
+                    $('#cart_sidebar').html(response['result']);
+                    document.getElementById('cart_total').textContent=response['total']
+                },
+                error:function(err){
+                    console.log(err)
+                },
+            })
+        })
 </script>
 
 

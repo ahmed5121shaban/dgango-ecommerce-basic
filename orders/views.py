@@ -26,6 +26,11 @@ def add_to_cart(request):
         cart_detail.total = int(quantity) * product.price
         cart_detail.save()
 
+        cart = Cart.objects.get(user=request.user,status='inprogress')
+        cart_detail = CartDetail.objects.filter(cart=cart)
+        html = render_to_string('cart_include.html',{'cart_data':cart,'cart_detail_data':cart_detail,request:request})
+        return JsonResponse({'result':html,'total':cart.get_total()})
+
 def order_list(request):
     orders = Order.objects.filter(user=request.user)
     return render(request, "orders/orders.html", {'orders':orders})
